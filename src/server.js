@@ -1,17 +1,20 @@
 import http from "node:http";
 import { randomUUID } from "node:crypto";
+import { json } from "./middlewares/json.js";
+import { Database } from "./database.js";
 
-const tasks = []
+const database = new Database()
 
 const PORT = 3333
+
 const server = http.createServer( async ( req, res ) => {
     const {method, url} = req //desestrutura essas infos da req
     
+    await json(req, res) // middleware comum a todas as requisições
 
     if ( method === 'GET' && url === '/tasks') {
         return res
-            .setHeader('Content-type', 'application/json')
-            .end(JSON.stringify(tasks))          
+            .end(JSON.stringify(database.select("tasks")))          
     }
 
     if ( method === 'POST' && url === '/tasks') {
@@ -26,7 +29,7 @@ const server = http.createServer( async ( req, res ) => {
             completed_at: null
         }
 
-        tasks.push(new_task)
+        database.insert("tasks", new_task)
         return res.writeHead(201).end()
     }
 

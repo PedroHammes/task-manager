@@ -1,4 +1,4 @@
-export async function json(params) {
+export async function json(req, res) {
     const buffers = [] // armazena os pedacinhos da req
     
     // junta todos os pedacinhos da requisição dentro do array
