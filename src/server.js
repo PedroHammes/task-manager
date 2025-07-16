@@ -11,14 +11,19 @@ const server = http.createServer( async ( req, res ) => {
     await json(req, res) // middleware comum a todas as requisições
 
     // Procura a rota requisitada no array de rotas
-    const route = routes.find( (route) => route.method === method && route.path === url)
+    const route = routes.find( route => {
+        return route.method === method && route.path.test(url)
+    })
 
     if (route) {
-        console.log('Rota encontradada! Executando o handler:')
+        const routeParams = req.url.match(route.path)
+        console.log(routeParams)
         route.handler( req, res )
     } else {
         res.writeHead(404).end()
     }
+
+
 } )
 
 server.listen(PORT)
