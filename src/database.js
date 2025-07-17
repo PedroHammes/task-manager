@@ -46,4 +46,41 @@ export class Database {
         }
         this.#persist()
     }
+
+        update(table, id, data) {
+        // Procura o ídice da tarefa que tem o mesmo ID da que está sendo buscada
+        const task_index = this.#database[table].findIndex( (task) => task.id === id)
+
+        // Se a tarefa foi encontrada, atualiza ela
+        if (task_index > -1) {
+
+            const filteredData = Object.fromEntries(
+                Object.entries(data).filter( ([ , value]) => value !== undefined)
+            )
+
+            filteredData.updated_at = new Date()
+
+            this.#database[table][task_index] = {
+                ...this.#database[table][task_index],
+                ...filteredData
+            }
+            this.#persist()
+        }
+
+    }
+
+    complete(table, id) {
+        
+        // Procura o índice da tarefa
+        const task_index = this.#database[table].findIndex( (task) => task.id === id)
+
+        // Se a tarefa foi encontrada, atualiza a data de conclusão
+        if (task_index > -1) {
+            this.#database[table][task_index].completed_at = new Date()
+        }
+
+        // Salva as alterações no BD
+        this.#persist()
+    }
+
 }

@@ -18,8 +18,6 @@ const server = http.createServer( async ( req, res ) => {
     if (route) {
         const routeParams = req.url.match(route.path)
         req.params = { ...routeParams.groups} ?? {} // se não existir parâmetro na rota não dará erro.
-        console.log(`Parametros da rota:`)
-        console.log(req.params)
         route.handler( req, res )
     } else {
         res.writeHead(404).end()
