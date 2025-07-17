@@ -33,4 +33,17 @@ export class Database {
         const data = this.#database[table] ?? "Tabela não encontrada"
         return data
     }
+
+    delete(table, id) {
+        // Procura o ídice da tarefa que tem o mesmo ID da que está sendo buscada
+        const task_index = this.#database[table].findIndex( (task) => task.id === id )
+
+        // findIndex() retorna a posição do elemento encontrado (de 0 à length-1)
+        //  ou -1 caso não encontre o elemento.
+        if (task_index > -1) {
+            this.#database[table].splice(task_index, 1) 
+            this.#persist()  
+        }
+        this.#persist()
+    }
 }

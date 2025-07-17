@@ -42,7 +42,9 @@ export const routes = [
             method: 'DELETE',
             path: buildRoutePath('/tasks/:id'),
             handler: ( req, res ) => {
-                return res.end('Tarefa excluída!')     
+                const { id } = req.params
+                database.delete("tasks", id)
+                return res.writeHead(204).end()
             }
         },
 
