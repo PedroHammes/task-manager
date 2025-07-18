@@ -9,5 +9,8 @@
   "keywords": [],
   "author": "Pedro Hammes",
   "license": "ISC",
-  "description": "A simple and local task manager"
+  "description": "A simple and local task manager",
+  "dependencies": {
+    "csv-parse": "^6.1.0"
+  }
 }

@@ -14,6 +14,14 @@ export const routes = [
     },
     {
         method: 'POST',
+        path: buildRoutePath('/tasks/import'),
+        handler: ( req, res ) => {
+            database.import( )
+            return res.end('Importação iniciada')
+        }
+    },
+    {
+        method: 'POST',
         path: buildRoutePath('/tasks'),
         handler: ( req, res ) => {
                 const { title, description } = req.body

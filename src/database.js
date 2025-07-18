@@ -1,6 +1,9 @@
 import fs from "node:fs/promises"
+import path from "node:path"
 
+// O arquivo precisa ser encontrado não impora de onde o programa esteja sendo executado:
 const databasePath = new URL('../db.json', import.meta.url)
+const CSVpath = new URL('./tasks.csv', import.meta.url)
 
 export class Database {
     #database = {}
@@ -47,7 +50,7 @@ export class Database {
         this.#persist()
     }
 
-        update(table, id, data) {
+    update(table, id, data) {
         // Procura o ídice da tarefa que tem o mesmo ID da que está sendo buscada
         const task_index = this.#database[table].findIndex( (task) => task.id === id)
 
@@ -81,6 +84,18 @@ export class Database {
 
         // Salva as alterações no BD
         this.#persist()
+    }
+
+    async import() {
+        // Aguarda a leitura do arquivo contido no caminho para então armazenar o conteúdo em tasks_csv
+        const tasks_csv = await fs.readFile(CSVpath) // instead readFile because is better to big files
+
+        
+        if (tasks_csv) {
+            console.log(typeof(tasks_csv))
+            console.log(tasks_csv.toString())
+        }
+
     }
 
 }
