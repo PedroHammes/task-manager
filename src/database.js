@@ -1,4 +1,5 @@
 import fs from "node:fs/promises"
+import { createReadStream } from "node:fs"
 import path from "node:path"
 
 // O arquivo precisa ser encontrado não impora de onde o programa esteja sendo executado:
@@ -87,13 +88,21 @@ export class Database {
     }
 
     async import() {
-        // Aguarda a leitura do arquivo contido no caminho para então armazenar o conteúdo em tasks_csv
-        const tasks_csv = await fs.readFile(CSVpath) // instead readFile because is better to big files
 
-        
-        if (tasks_csv) {
-            console.log(typeof(tasks_csv))
-            console.log(tasks_csv.toString())
+        // Este bloco trycatch é a stream que lê o arquivo
+        try {
+            const tasks_csv = createReadStream(CSVpath) // instead readFile because is better to big files (read chunk by chunk)
+
+            // wait for all the pieces to be read
+            for await (const chunk of tasks_csv) {
+                console.log('Recebido pedaço:', chunk.toString())
+            }
+
+            console.log('Leitura completa')
+
+        } catch (error) {
+            console.error('Erro durante a leitura:', error)
+
         }
 
     }
