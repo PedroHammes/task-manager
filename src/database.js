@@ -1,6 +1,8 @@
 import fs from "node:fs/promises"
 import { createReadStream } from "node:fs"
 import path from "node:path"
+import { parse } from "csv-parse"
+import { randomUUID } from "node:crypto"
 
 // O arquivo precisa ser encontrado não impora de onde o programa esteja sendo executado:
 const databasePath = new URL('../db.json', import.meta.url)
@@ -20,14 +22,21 @@ export class Database {
     }
 
     insert(table, data) {
-        
+        const new_task = {
+            id: randomUUID(),
+            title: data.title,
+            description: data.description,
+            created_at: new Date(),
+            updated_at: null,
+            completed_at: null
+        }
         // Se a tabela existe adiciona os dados à ela
         if ( Array.isArray(this.#database[table]) ) {
-            this.#database[table].push(data)
+            this.#database[table].push(new_task)
 
         // Se não existe cria e então adicona os dados
         } else {
-            this.#database[table] = [data]
+            this.#database[table] = [new_task]
         }
 
         this.#persist()
@@ -91,20 +100,30 @@ export class Database {
 
         // Este bloco trycatch é a stream que lê o arquivo
         try {
-            const tasks_csv = createReadStream(CSVpath) // instead readFile because is better to big files (read chunk by chunk)
+            // Using createReadStream instead readFile because is better to big files (read chunk by chunk)
+            const tasks_csv = createReadStream(CSVpath).pipe(parse({
+                // parse é um método interno da biblioteca csv-parse
+                // seus atributos tem muitas funções: (pesquise headers e delimitadores de parse csv nodejs)
+                delimiter: ",", // define o caracter que separa os valores de cada linha
+                columns: true // define se a primeira linha do CSV deve ser usada como cabeçalho
+            })) 
+
 
             // wait for all the pieces to be read
             for await (const chunk of tasks_csv) {
-                console.log('Recebido pedaço:', chunk.toString())
+                try {
+                    this.insert('tasks', chunk)
+                } catch (error) {
+                    console.error(`Erro ao inserir tarefa (${chunk.title}):${error.message}`)
+                }
+                // console.log('Recebido pedaço:', chunk)
             }
-
-            console.log('Leitura completa')
 
         } catch (error) {
             console.error('Erro durante a leitura:', error)
 
         }
-
+        this.#persist()
     }
 
 }

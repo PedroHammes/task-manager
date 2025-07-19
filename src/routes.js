@@ -26,16 +26,12 @@ export const routes = [
         handler: ( req, res ) => {
                 const { title, description } = req.body
                 
-                const new_task = {
-                    id: randomUUID(),
+                const data = {
                     title: title,
-                    description: description,
-                    created_at: new Date(),
-                    updated_at: null,
-                    completed_at: null
+                    description: description
                 }
 
-                database.insert("tasks", new_task)
+                database.insert("tasks", data)
                 return res.writeHead(201).end()
             }
         },
