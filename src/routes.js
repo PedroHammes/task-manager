@@ -12,6 +12,7 @@ export const routes = [
             return res.end(JSON.stringify(database.select("tasks")))
         }
     },
+
     {
         method: 'POST',
         path: buildRoutePath('/tasks/import'),
@@ -20,6 +21,7 @@ export const routes = [
             return res.end('Importação iniciada')
         }
     },
+
     {
         method: 'POST',
         path: buildRoutePath('/tasks'),
@@ -38,55 +40,64 @@ export const routes = [
                 database.insert("tasks", data)
                 return res.writeHead(201).end()
             }
-        },
-        {
-            method: 'PUT',
-            path: buildRoutePath('/tasks/:id'),
-            handler: ( req, res ) => {
-                const { id } = req.params
-                const { title, description} = req.body
-                const data = {
-                    title,
-                    description,
-                }
-
-                if (!title || !description) {
-                    return res.writeHead(404).end("Infome title e description")
-                }
-
-                try {
-                    database.update("tasks", id, data)
-                } catch (error) {
-                    return res.writeHead(404).end(error.message)
-                }
-
-                return res.end('Tarefa atualizada!') 
+    },
+    
+    {
+        method: 'PUT',
+        path: buildRoutePath('/tasks/:id'),
+        handler: ( req, res ) => {
+            const { id } = req.params
+            const { title, description} = req.body
+            const data = {
+                title,
+                description,
             }
-        },
-        {
-            method: 'DELETE',
-            path: buildRoutePath('/tasks/:id'),
-            handler: ( req, res ) => {
-                const { id } = req.params
 
-                try {
-                    database.delete("tasks", id)
-                } catch (error) {
-                    return res.writeHead(404).end(error.message)
-                }
+            if (!title && !description) {
+                return res.writeHead(404).end("Infome title e description")
+            }
 
-                return res.writeHead(204).end()
+            try {
+                database.update("tasks", id, data)
+            } catch (error) {
+                return res.writeHead(404).end(error.message)
             }
-        },
-        {
-            method: 'PATCH',
-            path: buildRoutePath('/tasks/:id'),
-            handler: ( req, res ) => {
-                const { id } = req.params
-                database.complete("tasks", id)
-                return res.end('Tarefa concluída!') 
-            }
+
+            return res.end('Tarefa atualizada!') 
         }
+    },
+
+    {
+        method: 'DELETE',
+        path: buildRoutePath('/tasks/:id'),
+        handler: ( req, res ) => {
+            const { id } = req.params
+
+            try {
+                database.delete("tasks", id)
+            } catch (error) {
+                return res.writeHead(404).end(error.message)
+            }
+
+            return res.writeHead(204).end()
+        }
+    },
+
+    {
+        method: 'PATCH',
+        path: buildRoutePath('/tasks/:id/complete'),
+        handler: ( req, res ) => {
+            const { id } = req.params
+
+            try {
+                database.complete("tasks", id)
+            } catch (error) {
+                return res.writeHead(404).end(error.message)
+            }
+
+            return res.writeHead(200).end('Status da tarefa alterado!') 
+        }
+    }
 
 ]
 

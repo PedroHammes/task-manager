@@ -98,7 +98,9 @@ export class Database {
 
         // Se a tarefa foi encontrada, atualiza a data de conclusão
         if (task_index > -1) {
-            this.#database[table][task_index].completed_at = new Date()
+            this.#database[table][task_index].completed_at = this.#database[table][task_index].completed_at === null ? new Date() : null
+        } else {
+            throw new Error('Não foi possível encontrar uma tarefa com este ID.')
         }
 
         // Salva as alterações no BD
