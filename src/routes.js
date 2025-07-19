@@ -26,6 +26,10 @@ export const routes = [
         handler: ( req, res ) => {
                 const { title, description } = req.body
                 
+                if (!title || !description) {
+                    return res.writeHead(400).end("Infome title e description")
+                }
+
                 const data = {
                     title: title,
                     description: description
@@ -40,14 +44,22 @@ export const routes = [
             path: buildRoutePath('/tasks/:id'),
             handler: ( req, res ) => {
                 const { id } = req.params
-                const { title, description, updated_at, completed_at} = req.body
+                const { title, description} = req.body
                 const data = {
                     title,
                     description,
-                    updated_at,
-                    completed_at
                 }
-                database.update("tasks", id, data)
+
+                if (!title || !description) {
+                    return res.writeHead(404).end("Infome title e description")
+                }
+
+                try {
+                    database.update("tasks", id, data)
+                } catch (error) {
+                    return res.writeHead(404).end(error.message)
+                }
+
                 return res.end('Tarefa atualizada!') 
             }
         },
@@ -56,7 +68,13 @@ export const routes = [
             path: buildRoutePath('/tasks/:id'),
             handler: ( req, res ) => {
                 const { id } = req.params
-                database.delete("tasks", id)
+
+                try {
+                    database.delete("tasks", id)
+                } catch (error) {
+                    return res.writeHead(404).end(error.message)
+                }
+
                 return res.writeHead(204).end()
             }
         },

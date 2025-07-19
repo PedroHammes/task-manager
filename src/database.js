@@ -55,9 +55,10 @@ export class Database {
         //  ou -1 caso não encontre o elemento.
         if (task_index > -1) {
             this.#database[table].splice(task_index, 1) 
-            this.#persist()  
+            this.#persist()
+        } else {
+            throw new Error('Não foi possível encontrar uma tarefa com este ID.')
         }
-        this.#persist()
     }
 
     update(table, id, data) {
@@ -67,17 +68,25 @@ export class Database {
         // Se a tarefa foi encontrada, atualiza ela
         if (task_index > -1) {
 
+            // Informa a data que foi atualizada
+            data.updated_at = new Date()
+
+            // Filtra somente os valores que foram modificados
             const filteredData = Object.fromEntries(
                 Object.entries(data).filter( ([ , value]) => value !== undefined)
             )
 
-            filteredData.updated_at = new Date()
-
+            // Insere os valores atualizados mantendo os que não foram.
             this.#database[table][task_index] = {
                 ...this.#database[table][task_index],
                 ...filteredData
             }
+
+            // Salva as alterações
             this.#persist()
+            
+        } else {
+            throw new Error('Não foi possível encontrar uma tarefa com este ID.')
         }
 
     }
