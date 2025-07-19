@@ -1,8 +1,9 @@
 import fs from "node:fs/promises"
 import { createReadStream } from "node:fs"
-import path from "node:path"
 import { parse } from "csv-parse"
 import { randomUUID } from "node:crypto"
+import { extractQueryParams } from "./utils/extractQueryParams.js"
+import { title } from "node:process"
 
 // O arquivo precisa ser encontrado não impora de onde o programa esteja sendo executado:
 const databasePath = new URL('../db.json', import.meta.url)
@@ -42,9 +43,34 @@ export class Database {
         this.#persist()
     }
 
-    select(table) {
+    select(table, url) {
         const data = this.#database[table] ?? "Tabela não encontrada"
-        return data
+
+        // Divie a url na ocorrência do '?' que indica o início dos queryparams
+        const have_params = url.split("?") 
+        
+        if (have_params.length > 1) {
+            console.log('Retornando busca com parâmetros')
+            
+            // Seleciona apenas os params
+            const query_params = new URLSearchParams(have_params[1])
+
+            const search_result = this.#database[table].filter( (task) => {
+                return query_params.has('title') && query_params.has('description')
+                ? task.title.includes(query_params.get('title')) && task.description.includes(query_params.get('description'))
+                : query_params.has('title')
+                    ? task.title.includes(query_params.get('title'))
+                    : query_params.has('description')
+                        ? task.description.includes(query_params.get('description'))
+                        : false
+            })
+
+            return search_result
+
+        }  else {
+            console.log('Retornando busca sem parâmetros')
+            return data
+        }
     }
 
     delete(table, id) {
